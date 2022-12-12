@@ -3,8 +3,6 @@ const path = require('path');
 const {v4 : uuidv4} = require('uuid')
 const fs = require('fs');
 
-const notesData = require('./db/db.json');
-
 const app = express();
 const PORT = 3001;
 
@@ -25,7 +23,15 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html'
 
 // handle API requests
 
-app.get('/api/notes', (req, res) => res.json(notesData));
+app.get('/api/notes', (req, res) => {
+  fs.readFile(path.join(__dirname, 'db/db.json'), (err, data) => {
+    if (err) {
+      console.error(err);
+    } else {
+      res.status(201).json(JSON.parse(data))
+    }
+  })
+});
 
 app.post('/api/notes', (req, res) => {
   // log that request has been recieved
@@ -89,10 +95,17 @@ app.delete('/api/notes/:id', (req, res) => {
       // search for and remove the requested note
       const deletedNote = notesArray.splice(notesArray.findIndex((note) => note.id === id), 1);
 
-      // write updated array to database
-      fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
-        err ? console.log(`Note "${deletedNote.title}" has been deleted`) : console.error(err);
-      });
+      // did the array contain the requested note?
+      if (deletedNote !== -1) {
+        // write updated array to database
+        fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
+          err ? console.log(`Note "${deletedNote.title}" has been deleted`) : console.error(err);
+        });
+        res.status(201).json(deletedNote);
+      } else {
+        res.status(404).json('Not found')
+      }
+      
     }
   })
 })
