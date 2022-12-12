@@ -75,7 +75,27 @@ app.post('/api/notes', (req, res) => {
   console.log(`${response.data.title}\n${response.data.text}`);
 });
 
+app.delete('/api/notes/:id', (req, res) => {
+  const id = req.params.id;
+  
+  // read from the database
+  fs.readFile(path.join(__dirname, 'db/db.json'), (err, data) => {
+    if (err) {
+      console.error(err);
+    } else {
+      // initialize array with current notes
+      let notesArray = JSON.parse(data);
 
+      // search for and remove the requested note
+      const deletedNote = notesArray.splice(notesArray.findIndex((note) => note.id === id), 1);
+
+      // write updated array to database
+      fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
+        err ? console.log(`Note "${deletedNote.title}" has been deleted`) : console.error(err);
+      });
+    }
+  })
+})
 
 
 
