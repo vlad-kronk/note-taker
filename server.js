@@ -68,7 +68,7 @@ app.post('/api/notes', (req, res) => {
 
         // write the updated array to the database
         fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
-          err ? console.log(`Note "${response.title}" has been written to file`) : console.error(err);
+          err ? console.error(err) : console.log(`Note "${response.title}" has been written to file`);
         });
       }
     })
@@ -99,7 +99,7 @@ app.delete('/api/notes/:id', (req, res) => {
       if (deletedNote !== -1) {
         // write updated array to database
         fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
-          err ? console.log(`Note "${deletedNote.title}" has been deleted`) : console.error(err);
+          err ? console.error(err) : console.log(`Note "${deletedNote.title}" has been deleted`);
         });
         res.status(201).json(deletedNote);
       } else {
