@@ -68,7 +68,7 @@ app.post('/api/notes', (req, res) => {
 
         // write the updated array to the database
         fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
-          err ? console.error(err) : console.log(`Note "${response.title}" has been written to file`);
+          err ? console.error(err) : console.log(`Note "${response.data.title}" has been written to file`);
         });
       }
     })
@@ -93,15 +93,19 @@ app.delete('/api/notes/:id', (req, res) => {
       let notesArray = JSON.parse(data);
 
       // search for and remove the requested note
-      const deletedNote = notesArray.splice(notesArray.findIndex((note) => note.id === id), 1);
+      const i = notesArray.findIndex((note) => note.id === id);
+      
 
       // did the array contain the requested note?
-      if (deletedNote !== -1) {
+      if (i !== -1) {
+        // update array
+        notesArray.splice(i, 1);
+
         // write updated array to database
         fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesArray, null, 4), (err) => {
-          err ? console.error(err) : console.log(`Note "${deletedNote.title}" has been deleted`);
+          err ? console.error(err) : console.log(`Note has been deleted`);
         });
-        res.status(201).json(deletedNote);
+        res.status(201).json("Note deleted");
       } else {
         res.status(404).json('Not found')
       }
